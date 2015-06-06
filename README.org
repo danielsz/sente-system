@@ -1,13 +1,13 @@
 * Sente example app
 ** What is this?
 
-The [[https://github.com/ptaoussanis/sente/tree/master/example-project][example app]] from Sente, componentized and bootified.
+The [[https://github.com/ptaoussanis/sente/tree/master/example-project][example app]] from Sente, but for [[https://github.com/danielsz/system][system]] (componentized and bootified).
 
 ** Usage
 
-Fire the Boot pipeline.
+Fire the Boot pipeline from the command line.
 #+BEGIN_SRC shell
-boot dev
+$ boot dev
 #+END_SRC
 
-Point your browser to http://localhost:3019
+Then point your browser to [[http://localhost:3019]]
