@@ -24,26 +24,6 @@
 
 ;; (sente/set-logging-level! :trace) ; Uncomment for more logging
 
-;;;; ---> Choose (uncomment) a supported web server and adapter <---
-
-;;; http-kit
-(defn start-web-server!* [ring-handler port]
-    (println "Starting http-kit...")
-    (let [http-kit-stop-fn (http-kit/run-server ring-handler {:port port})]
-      {:server  nil ; http-kit doesn't expose this
-       :port    (:local-port (meta http-kit-stop-fn))
-       :stop-fn (fn [] (http-kit-stop-fn :timeout 100))}))
-
-;;; Immutant
-;; #+clj
-;; (defn start-web-server!* [ring-handler port]
-;;   (println "Starting Immutant...")
-;;   (let [server (immutant/run ring-handler :port port)]
-;;     {:server  server
-;;      :port    (:port server)
-;;      :stop-fn (fn [] (immutant/stop server))}))
-
-
 ;;;; Server-side setup
 
 
@@ -114,17 +94,15 @@
      (debugf "Event: %s" event)
      (event-msg-handler ev-msg))
 
-(do ; Server-side methods
-    (defmethod event-msg-handler :default ; Fallback
-      [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
-      (let [session (:session ring-req)
-            uid     (:uid     session)]
-        (debugf "Unhandled event: %s" event)
-        (when ?reply-fn
-          (?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
+(defmethod event-msg-handler :default ; Fallback
+  [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+  (let [session (:session ring-req)
+        uid     (:uid     session)]
+    (debugf "Unhandled event: %s" event)
+    (when ?reply-fn
+      (?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
 
-    ;; Add your (defmethod event-msg-handler <event-id> [ev-msg] <body>)s here...
-    )
+;; Add your (defmethod event-msg-handler <event-id> [ev-msg] <body>)s here...
 
 
 ;;;; Example: broadcast server>user
@@ -145,7 +123,7 @@
       (recur (inc i))))
 
 ; Note that this'll be fast+reliable even over Ajax!:
-(defn test-fast-server>user-pushes []
+(defn test-fast-server>User-pushes []
   (doseq [uid (:any @(:connected-uids (:sente system)))]
     (doseq [i (range 100)]
       ((:chsk-send! (:sente system)) uid [:fast-push/is-fast (str "hello " i "!!")]))))
@@ -154,33 +132,8 @@
 
 ;;;; Init
 
-(defonce web-server_ (atom nil)) ; {:server _ :port _ :stop-fn (fn [])}
-(defn stop-web-server! [] (when-let [m @web-server_] ((:stop-fn m))))
-(defn start-web-server! [& [port]]
-  (stop-web-server!)
-  (let [{:keys [stop-fn port] :as server-map}
-        (start-web-server!* (var my-ring-handler)
-                            (or port 0) ; 0 => auto (any available) port
-                            )
-        uri (format "http://localhost:%s/" port)]
-    (debugf "Web server is running at `%s`" uri)
-    (try
-      (.browse (java.awt.Desktop/getDesktop) (java.net.URI. uri))
-      (catch java.awt.HeadlessException _))
-    (reset! web-server_ server-map)))
-
-(defonce router_ (atom nil))
-
-(defn  stop-router! [] (when-let [stop-f @router_] (stop-f)))
-(defn start-router! []
-  (stop-router!)
-  (reset! router_ (sente/start-chsk-router! (:ch-chsk (:sente system)) event-msg-handler*)))
-
 (defn start! []
-  (start-router!)
-  (start-web-server!)
   (start-broadcaster!))
-
 
 ;; #+clj (start!) ; Server-side auto-start disabled for LightTable, etc.
 (comment (start!)

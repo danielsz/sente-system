@@ -32,35 +32,33 @@
 
 ;;;; Routing handlers
 
-    (defmulti event-msg-handler :id) ; Dispatch on event-id
+(defmulti event-msg-handler :id) ; Dispatch on event-id
     ;; Wrap for logging, catching, etc.:
-    (defn     event-msg-handler* [{:as ev-msg :keys [id ?data event]}]
-      (debugf "Event: %s" event)
-      (event-msg-handler ev-msg))
+(defn     event-msg-handler* [{:as ev-msg :keys [id ?data event]}]
+  (debugf "Event: %s" event)
+  (event-msg-handler ev-msg))
 
+(defmethod event-msg-handler :default ; Fallback
+  [{:as ev-msg :keys [event]}]
+  (debugf "Unhandled event: %s" event))
 
-    (do ; Client-side methods
-      (defmethod event-msg-handler :default ; Fallback
-        [{:as ev-msg :keys [event]}]
-        (debugf "Unhandled event: %s" event))
-      
-      (defmethod event-msg-handler :chsk/state
-        [{:as ev-msg :keys [?data]}]
-        (if (= ?data {:first-open? true})
-          (debugf "Channel socket successfully established!")
-          (debugf "Channel socket state change: %s" ?data)))
-      
-      (defmethod event-msg-handler :chsk/recv
-        [{:as ev-msg :keys [?data]}]
-        (debugf "Push event from server: %s" ?data))
-      
-      (defmethod event-msg-handler :chsk/handshake
-        [{:as ev-msg :keys [?data]}]
-        (let [[?uid ?csrf-token ?handshake-data] ?data]
-          (debugf "Handshake: %s" ?data)))
-      
-      ;; Add your (defmethod handle-event-msg! <event-id> [ev-msg] <body>)s here...
-      )
+(defmethod event-msg-handler :chsk/state
+  [{:as ev-msg :keys [?data]}]
+  (if (= ?data {:first-open? true})
+    (debugf "Channel socket successfully established!")
+    (debugf "Channel socket state change: %s" ?data)))
+
+(defmethod event-msg-handler :chsk/recv
+  [{:as ev-msg :keys [?data]}]
+  (debugf "Push event from server: %s" ?data))
+
+(defmethod event-msg-handler :chsk/handshake
+  [{:as ev-msg :keys [?data]}]
+  (let [[?uid ?csrf-token ?handshake-data] ?data]
+    (debugf "Handshake: %s" ?data)))
+
+;; Add your (defmethod handle-event-msg! <event-id> [ev-msg] <body>)s here...
+
 
 ;;;; Client-side UI
 
