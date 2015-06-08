@@ -21,8 +21,7 @@
         
       {:keys [chsk ch-recv send-fn state]}
         (sente/make-channel-socket! "/chsk" ; Note the same URL as before
-                                    {:type   rand-chsk-type
-                                     :packer packer})]
+                                    {:type   rand-chsk-type})]
     (debugf "Randomly selected chsk type: %s" rand-chsk-type)
     (def chsk       chsk)
     (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
