@@ -9,7 +9,7 @@
                  [org.clojure/tools.nrepl "0.2.10"]
            
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [com.taoensso/sente        "1.5.0-RC2"] ; <--- Sente
+                 [com.taoensso/sente        "1.5.0"] ; <--- Sente
 
    ;;; ---> Choose (uncomment) a supported web server <---
                  [http-kit                  "2.1.19"]
