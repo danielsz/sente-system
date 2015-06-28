@@ -1,9 +1,9 @@
 (set-env!
  :source-paths   #{"src/clj" "src/cljs"}
- :dependencies '[[adzerk/boot-cljs      "0.0-3269-2" :scope "test"]
-                 [adzerk/boot-reload    "0.2.6"      :scope "test"]
+ :dependencies '[[adzerk/boot-cljs "0.0-3308-0" :scope "test"]
+                 [adzerk/boot-reload "0.3.1" :scope "test"]
                  [environ "1.0.0"]
-                 [danielsz/boot-environ "0.0.3"]
+                 [danielsz/boot-environ "0.0.4"]
                  [org.danielsz/system "0.1.8"]
                  [org.clojure/clojure       "1.7.0-RC1"]
                  [org.clojure/tools.nrepl "0.2.10"]
