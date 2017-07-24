@@ -1,7 +1,7 @@
 (ns example.systems
   (:require 
-   [example.my-app :refer [event-msg-handler* my-ring-handler]]
-   [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
+   [example.server :refer [event-msg-handler main-ring-handler]]
+   [taoensso.sente.server-adapters.http-kit :refer [get-sch-adapter]]
    ;; or
    ;; [taoensso.sente.server-adapters.immutant :refer (sente-web-server-adapter)]
    ;; Optional, for Transit encoding:
@@ -13,11 +13,10 @@
     [sente :refer [new-channel-sockets]])))
    
 (defsystem dev-system
-  [:web (new-web-server (Integer. (env :http-port)) my-ring-handler)
-   :sente (new-channel-sockets event-msg-handler* sente-web-server-adapter)])
+  [:web (new-web-server (Integer. ^String (env :http-port)) main-ring-handler)
+   :sente (new-channel-sockets event-msg-handler (get-sch-adapter))])
 
 (defsystem prod-system
-  [:web (new-web-server (Integer. (env :http-port)) my-ring-handler)
-   :sente (new-channel-sockets event-msg-handler* sente-web-server-adapter
-                               {:packer (sente-transit/get-flexi-packer :edn)})])
-
+  [:web (new-web-server (Integer. ^String (env :http-port)) main-ring-handler)
+   :sente (new-channel-sockets event-msg-handler (get-sch-adapter)
+                               {:packer (sente-transit/get-transit-packer :edn)})])
